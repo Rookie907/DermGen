@@ -6,7 +6,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            DermaGen
+            DermSynth
           </h1>
           <p className="text-xl text-gray-600 mb-2">
             Conditional GAN for Rare Skin Lesion Synthesis
@@ -34,10 +34,10 @@ export default function Home() {
               <ImagePlus className="text-cyan-600" size={24} />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              7 Disease Classes
+              3 Disease Classes
             </h3>
             <p className="text-gray-600 text-sm">
-              Generate images for AKIEC, BCC, BKL, DF, MEL, NV, and VASC
+              Generate images for AKIEC, DF and VASC
             </p>
           </div>
 
@@ -88,24 +88,26 @@ export default function Home() {
             <div className="bg-white bg-opacity-10 rounded-lg p-4">
               <span className="font-semibold">AKIEC</span> - Actinic Keratoses and Intraepithelial Carcinoma
             </div>
+             <div className="bg-white bg-opacity-10 rounded-lg p-4">
+              <span className="font-semibold">DF</span> - Dermatofibroma
+            </div>
+           
             <div className="bg-white bg-opacity-10 rounded-lg p-4">
+              <span className="font-semibold">VASC</span> - Vascular Lesions
+            </div>
+             <div className="bg-white bg-opacity-10 rounded-lg p-4">
               <span className="font-semibold">BCC</span> - Basal Cell Carcinoma
             </div>
             <div className="bg-white bg-opacity-10 rounded-lg p-4">
               <span className="font-semibold">BKL</span> - Benign Keratosis-like Lesions
             </div>
-            <div className="bg-white bg-opacity-10 rounded-lg p-4">
-              <span className="font-semibold">DF</span> - Dermatofibroma
-            </div>
-            <div className="bg-white bg-opacity-10 rounded-lg p-4">
+             <div className="bg-white bg-opacity-10 rounded-lg p-4">
               <span className="font-semibold">MEL</span> - Melanoma
             </div>
             <div className="bg-white bg-opacity-10 rounded-lg p-4">
               <span className="font-semibold">NV</span> - Melanocytic Nevi
             </div>
-            <div className="bg-white bg-opacity-10 rounded-lg p-4">
-              <span className="font-semibold">VASC</span> - Vascular Lesions
-            </div>
+          
           </div>
         </div>
       </div>

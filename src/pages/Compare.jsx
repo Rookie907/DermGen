@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { useImageContext } from '../context/ImageContext';
 
 const DISEASE_CLASSES = ['AKIEC', 'BCC', 'BKL', 'DF', 'MEL', 'NV', 'VASC'];
 
@@ -15,10 +16,13 @@ const SAMPLE_REAL_IMAGES = {
 
 export default function Compare() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
+  const { generatedImages } = useImageContext();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
+        
+        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
             Compare Real vs Synthetic
@@ -28,6 +32,7 @@ export default function Compare() {
           </p>
         </div>
 
+        {/* Class Selector */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8 max-w-md mx-auto">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Disease Class
@@ -45,14 +50,18 @@ export default function Compare() {
           </select>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-lg p-6">
+        {/* Comparison Section */}
+        <div className="grid md:grid-cols-2 gap-8 justify-items-center">
+
+          {/* REAL IMAGE CARD */}
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Real Image</h2>
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                 Original
               </span>
             </div>
+
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
               <img
                 src={SAMPLE_REAL_IMAGES[selectedClass]}
@@ -60,33 +69,53 @@ export default function Compare() {
                 className="w-full h-full object-cover"
               />
             </div>
+
             <div className="text-sm text-gray-600">
               <p className="font-medium mb-1">Source: Training Dataset</p>
               <p>Class: {selectedClass}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          {/* SYNTHETIC IMAGE CARD */}
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">Synthetic Image</h2>
               <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                 Generated
               </span>
             </div>
-            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <RefreshCw size={48} className="mx-auto mb-3 opacity-50" />
-                <p className="text-sm">Generate images in the Generate page</p>
-                <p className="text-sm">to compare with real samples</p>
+
+            {generatedImages.length > 0 ? (
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+                <img
+                  src={
+                    generatedImages[0].startsWith('data:')
+                      ? generatedImages[0]
+                      : `http://localhost:5000${generatedImages[0]}`
+                  }
+                  alt={`Synthetic`}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            </div>
+            ) : (
+              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <RefreshCw size={48} className="mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Generate images in the Generate page</p>
+                  <p className="text-sm">to compare with real samples</p>
+                </div>
+              </div>
+            )}
+
             <div className="text-sm text-gray-600">
               <p className="font-medium mb-1">Source: Conditional GAN</p>
               <p>Class: {selectedClass}</p>
             </div>
           </div>
+
         </div>
 
+        {/* Metrics Section */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
           <h3 className="text-lg font-semibold text-blue-900 mb-3">
             Comparison Metrics
@@ -106,6 +135,7 @@ export default function Compare() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

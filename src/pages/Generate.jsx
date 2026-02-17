@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import ImageCard from '../components/ImageCard';
 import axios from 'axios';
+import { useImageContext } from "../context/ImageContext";
+
+
 
 const DISEASE_CLASSES = [
   { value: 'AKIEC', label: 'AKIEC - Actinic Keratoses' },
-  { value: 'BCC', label: 'BCC - Basal Cell Carcinoma' },
-  { value: 'BKL', label: 'BKL - Benign Keratosis' },
+ 
   { value: 'DF', label: 'DF - Dermatofibroma' },
-  { value: 'MEL', label: 'MEL - Melanoma' },
-  { value: 'NV', label: 'NV - Melanocytic Nevi' },
+  
   { value: 'VASC', label: 'VASC - Vascular Lesions' }
 ];
 
@@ -17,7 +18,7 @@ export default function Generate() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
   const [count, setCount] = useState(4);
   const [loading, setLoading] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState([]);
+const { generatedImages, setGeneratedImages } = useImageContext();
   const [error, setError] = useState('');
 
   const handleGenerate = async () => {
