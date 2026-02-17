@@ -116,7 +116,7 @@ export default function Compare() {
         </div>
 
         {/* Metrics Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
+        {/* <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-8">
           <h3 className="text-lg font-semibold text-blue-900 mb-3">
             Comparison Metrics
           </h3>
@@ -134,7 +134,7 @@ export default function Compare() {
               <p className="text-2xl font-bold text-blue-600">90%</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
       </div>
     </div>
