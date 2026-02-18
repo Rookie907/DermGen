@@ -4,7 +4,6 @@ import { useImageContext } from '../context/ImageContext';
 
 const DISEASE_CLASSES = ['AKIEC', 'BCC', 'BKL', 'DF', 'MEL', 'NV', 'VASC'];
 
-// Fallback images for classes that don't have local images yet
 const FALLBACK_IMAGES = {
   AKIEC: 'https://images.pexels.com/photos/5858835/pexels-photo-5858835.jpeg?w=300',
   BCC: 'https://images.pexels.com/photos/5858836/pexels-photo-5858836.jpeg?w=300',
@@ -16,14 +15,12 @@ const FALLBACK_IMAGES = {
 };
 
 // Import all images from ../images directory
-// This returns an object where keys are the path and values are the modules
 const localImageModules = import.meta.glob('../images/*/*.{png,jpg,jpeg,svg}', { eager: true });
 
 // Organize images by class
 const LOCAL_IMAGES = {};
 
 Object.keys(localImageModules).forEach((path) => {
-  // path is like "../images/AKIEC/1.jpg"
   const parts = path.split('/');
   const className = parts[parts.length - 2];
 
@@ -31,7 +28,6 @@ Object.keys(localImageModules).forEach((path) => {
     LOCAL_IMAGES[className] = [];
   }
 
-  // The module default export is the URL string
   LOCAL_IMAGES[className].push(localImageModules[path].default);
 });
 

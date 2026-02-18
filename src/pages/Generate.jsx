@@ -18,7 +18,7 @@ export default function Generate() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
   const [count, setCount] = useState(4);
   const [loading, setLoading] = useState(false);
-const { generatedImages, setGeneratedImages } = useImageContext();
+  const { generatedImages, setGeneratedImages } = useImageContext();
   const [error, setError] = useState('');
 
   const handleGenerate = async () => {
