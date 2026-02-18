@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useImageContext } from '../context/ImageContext';
 
 const DISEASE_CLASSES = ['AKIEC', 'BCC', 'BKL', 'DF', 'MEL', 'NV', 'VASC'];
 
-const SAMPLE_REAL_IMAGES = {
+// Fallback images for classes that don't have local images yet
+const FALLBACK_IMAGES = {
   AKIEC: 'https://images.pexels.com/photos/5858835/pexels-photo-5858835.jpeg?w=300',
   BCC: 'https://images.pexels.com/photos/5858836/pexels-photo-5858836.jpeg?w=300',
   BKL: 'https://images.pexels.com/photos/5858837/pexels-photo-5858837.jpeg?w=300',
@@ -14,14 +15,55 @@ const SAMPLE_REAL_IMAGES = {
   VASC: 'https://images.pexels.com/photos/5858841/pexels-photo-5858841.jpeg?w=300'
 };
 
+// Import all images from ../images directory
+// This returns an object where keys are the path and values are the modules
+const localImageModules = import.meta.glob('../images/*/*.{png,jpg,jpeg,svg}', { eager: true });
+
+// Organize images by class
+const LOCAL_IMAGES = {};
+
+Object.keys(localImageModules).forEach((path) => {
+  // path is like "../images/AKIEC/1.jpg"
+  const parts = path.split('/');
+  const className = parts[parts.length - 2];
+
+  if (!LOCAL_IMAGES[className]) {
+    LOCAL_IMAGES[className] = [];
+  }
+
+  // The module default export is the URL string
+  LOCAL_IMAGES[className].push(localImageModules[path].default);
+});
+
 export default function Compare() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { generatedImages } = useImageContext();
+
+  // Get images for the selected class
+  const classImages = LOCAL_IMAGES[selectedClass]?.length
+    ? LOCAL_IMAGES[selectedClass]
+    : [FALLBACK_IMAGES[selectedClass]];
+
+  const currentImage = classImages[currentImageIndex] || classImages[0];
+
+  // Reset index when class changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedClass]);
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % classImages.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + classImages.length) % classImages.length);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
-        
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
@@ -62,16 +104,38 @@ export default function Compare() {
               </span>
             </div>
 
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4 relative group">
               <img
-                src={SAMPLE_REAL_IMAGES[selectedClass]}
+                src={currentImage}
                 alt={`Real ${selectedClass}`}
                 className="w-full h-full object-cover"
               />
+
+              {classImages.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrev}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-md transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={20} className="text-gray-800" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-md transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={20} className="text-gray-800" />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                    {currentImageIndex + 1} / {classImages.length}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="text-sm text-gray-600">
-              <p className="font-medium mb-1">Source: Training Dataset</p>
+              <p className="font-medium mb-1">Source: {LOCAL_IMAGES[selectedClass]?.length ? 'Training Dataset (Local)' : 'Training Dataset (Remote)'}</p>
               <p>Class: {selectedClass}</p>
             </div>
           </div>
