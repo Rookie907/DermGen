@@ -33,28 +33,33 @@ export const generateImages = async (req, res) => {
       timeout: 60000
     });
 
-    // AI service returns base64 image, convert to file paths
-    // For now, return the base64 data URI so frontend can display it
-    // In production, you'd save the image to disk and return paths
-    const base64Image = response.data?.image_base64;
-    if (!base64Image) {
+    // AI service returns array of base64 images
+    const imagesBase64 = response.data?.images_base64 || response.data?.image_base64;
+    if (!imagesBase64) {
       return res.status(502).json({
         error: 'Invalid response from AI service',
-        details: 'Missing image_base64 in response'
+        details: 'Missing images_base64 in response'
       });
     }
-    const imageDataUri = `data:image/png;base64,${base64Image}`;
+
+    // Handle both array response and single image (backward compatibility)
+    const imageList = Array.isArray(imagesBase64) ? imagesBase64 : [imagesBase64];
     
-    // Store metadata (using data URI as path for now)
-    const imageRecords = [{
+    // Convert each base64 string to data URI
+    const imageDataUris = imageList.map(base64Image => 
+      `data:image/png;base64,${base64Image}`
+    );
+    
+    // Store metadata for all images
+    const imageRecords = imageDataUris.map(imageDataUri => ({
       class: diseaseClass,
       path: imageDataUri
-    }];
+    }));
     addImages(imageRecords);
 
     res.json({
       success: true,
-      images: [imageDataUri]
+      images: imageDataUris
     });
 
   } catch (error) {
