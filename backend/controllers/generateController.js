@@ -18,14 +18,15 @@ export const generateImages = async (req, res) => {
       return res.status(400).json({ error: 'Count must be between 1 and 20' });
     }
 
-    const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-    
+    const baseUrl = (process.env.AI_SERVICE_URL || 'http://localhost:8000').replace(/\/generate\/?$/, '');
+    const generateUrl = `${baseUrl}/generate`;
+
     // Map disease class to class index (AI service only supports 3 classes: 0, 1, 2)
     // For now, map first 3 classes: AKIEC=0, BCC=1, BKL=2
     const classMap = { 'AKIEC': 0, 'BCC': 1, 'BKL': 2, 'DF': 0, 'MEL': 1, 'NV': 2, 'VASC': 0 };
     const classIdx = classMap[diseaseClass] ?? 0;
-    
-    const response = await axios.post(`${aiServiceUrl}/generate`, {
+
+    const response = await axios.post(generateUrl, {
       class_idx: classIdx,
       num_images: parseInt(count)
     }, {
@@ -35,7 +36,13 @@ export const generateImages = async (req, res) => {
     // AI service returns base64 image, convert to file paths
     // For now, return the base64 data URI so frontend can display it
     // In production, you'd save the image to disk and return paths
-    const base64Image = response.data.image_base64;
+    const base64Image = response.data?.image_base64;
+    if (!base64Image) {
+      return res.status(502).json({
+        error: 'Invalid response from AI service',
+        details: 'Missing image_base64 in response'
+      });
+    }
     const imageDataUri = `data:image/png;base64,${base64Image}`;
     
     // Store metadata (using data URI as path for now)
@@ -51,7 +58,9 @@ export const generateImages = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error generating images:', error.message);
+    const aiDetail = error.response?.data?.detail;
+    const message = error.response?.data?.detail || error.message;
+    console.error('Error generating images:', message, aiDetail ? '(from AI service)' : '');
 
     if (error.code === 'ECONNREFUSED') {
       return res.status(503).json({
@@ -59,9 +68,10 @@ export const generateImages = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    const status = error.response?.status ?? 500;
+    res.status(status).json({
       error: 'Failed to generate images',
-      details: error.message
+      details: message
     });
   }
 };
