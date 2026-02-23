@@ -1,7 +1,8 @@
-torch
-torchvision
 fastapi
 uvicorn
-pydantic
-Pillow
-python-multipart
+torch
+torchvision
+pillow
+numpy
+flask
+flask_cors

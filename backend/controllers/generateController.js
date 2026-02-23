@@ -26,15 +26,19 @@ export const generateImages = async (req, res) => {
     const classMap = { 'AKIEC': 0, 'BCC': 1, 'BKL': 2, 'DF': 0, 'MEL': 1, 'NV': 2, 'VASC': 0 };
     const classIdx = classMap[diseaseClass] ?? 0;
 
+    // Call FastAPI AI service through backend (React never talks to Python directly)
     const response = await axios.post(generateUrl, {
-      class_idx: classIdx,
-      num_images: parseInt(count)
+      disease: classIdx,
+      count: parseInt(count)
     }, {
       timeout: 60000
     });
 
     // AI service returns array of base64 images
-    const imagesBase64 = response.data?.images_base64 || response.data?.image_base64;
+    const imagesBase64 =
+      response.data?.images ||
+      response.data?.images_base64 ||
+      response.data?.image_base64;
     if (!imagesBase64) {
       return res.status(502).json({
         error: 'Invalid response from AI service',

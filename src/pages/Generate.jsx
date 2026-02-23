@@ -4,13 +4,9 @@ import ImageCard from '../components/ImageCard';
 import axios from 'axios';
 import { useImageContext } from "../context/ImageContext";
 
-
-
 const DISEASE_CLASSES = [
   { value: 'AKIEC', label: 'AKIEC - Actinic Keratoses' },
- 
   { value: 'DF', label: 'DF - Dermatofibroma' },
-  
   { value: 'VASC', label: 'VASC - Vascular Lesions' }
 ];
 
@@ -18,9 +14,10 @@ export default function Generate() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
   const [count, setCount] = useState(4);
   const [loading, setLoading] = useState(false);
-  const { generatedImages, setGeneratedImages } = useImageContext();
+  const { generatedImages, setGeneratedImages, setGeneratedClass } = useImageContext();
   const [error, setError] = useState('');
 
+  // ===== Updated handleGenerate pointing to Flask backend =====
   const handleGenerate = async () => {
     if (count < 1 || count > 20) {
       setError('Please enter a number between 1 and 20');
@@ -32,36 +29,34 @@ export default function Generate() {
     setGeneratedImages([]);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/generate', {
-        class: selectedClass,
+      const response = await axios.post('http://localhost:8001/generate', {  // Flask backend
+        disease: selectedClass,  // matches backend key
         count: parseInt(count)
       });
 
-      setGeneratedImages(response.data.images);
+      // Prepend data URI so images render correctly
+      setGeneratedImages(
+        response.data.images.map(img => `data:image/png;base64,${img}`)
+      );
+      setGeneratedClass(selectedClass);
+
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to generate images. Make sure backend and AI service are running.');
+      setError(
+        err.response?.data?.error || 
+        'Failed to generate images. Make sure backend is running.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleDownload = (imageDataUri, index) => {
-    // Handle both base64 data URIs and file paths
-    if (imageDataUri.startsWith('data:')) {
-      const link = document.createElement('a');
-      link.href = imageDataUri;
-      link.download = `${selectedClass}_${index + 1}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      const link = document.createElement('a');
-      link.href = `http://localhost:5000${imageDataUri}`;
-      link.download = imageDataUri.split('/').pop();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const link = document.createElement('a');
+    link.href = imageDataUri;
+    link.download = `${selectedClass}_${index + 1}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -143,7 +138,7 @@ export default function Generate() {
               {generatedImages.map((imageDataUri, index) => (
                 <ImageCard
                   key={index}
-                  src={imageDataUri.startsWith('data:') ? imageDataUri : `http://localhost:5000${imageDataUri}`}
+                  src={imageDataUri}
                   label={`${selectedClass} #${index + 1}`}
                   onDownload={() => handleDownload(imageDataUri, index)}
                 />

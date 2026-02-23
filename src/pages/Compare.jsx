@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useImageContext } from '../context/ImageContext';
 
-const DISEASE_CLASSES = ['AKIEC', 'BCC', 'BKL', 'DF', 'MEL', 'NV', 'VASC'];
+const DISEASE_CLASSES = ['AKIEC',  'DF', 'VASC'];
 
 const FALLBACK_IMAGES = {
   AKIEC: 'https://images.pexels.com/photos/5858835/pexels-photo-5858835.jpeg?w=300',
@@ -34,7 +34,8 @@ Object.keys(localImageModules).forEach((path) => {
 export default function Compare() {
   const [selectedClass, setSelectedClass] = useState('AKIEC');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { generatedImages } = useImageContext();
+  const [currentSyntheticIndex, setCurrentSyntheticIndex] = useState(0);
+  const { generatedImages, generatedClass } = useImageContext();
 
   // Get images for the selected class
   const classImages = LOCAL_IMAGES[selectedClass]?.length
@@ -43,10 +44,27 @@ export default function Compare() {
 
   const currentImage = classImages[currentImageIndex] || classImages[0];
 
+  const hasGeneratedImages = generatedImages.length > 0;
+  const currentSyntheticImage = hasGeneratedImages
+    ? generatedImages[currentSyntheticIndex] || generatedImages[0]
+    : null;
+
   // Reset index when class changes
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [selectedClass]);
+
+  // Sync Compare page class to the class that was used for generation
+  useEffect(() => {
+    if (generatedImages.length > 0 && generatedClass && DISEASE_CLASSES.includes(generatedClass)) {
+      setSelectedClass(generatedClass);
+    }
+  }, [generatedImages.length, generatedClass]);
+
+  // Reset synthetic index when new images are generated
+  useEffect(() => {
+    setCurrentSyntheticIndex(0);
+  }, [generatedImages.length]);
 
   const handleNext = () => {
     setCurrentImageIndex((prev) => (prev + 1) % classImages.length);
@@ -54,6 +72,16 @@ export default function Compare() {
 
   const handlePrev = () => {
     setCurrentImageIndex((prev) => (prev - 1 + classImages.length) % classImages.length);
+  };
+
+  const handleNextSynthetic = () => {
+    if (!hasGeneratedImages) return;
+    setCurrentSyntheticIndex((prev) => (prev + 1) % generatedImages.length);
+  };
+
+  const handlePrevSynthetic = () => {
+    if (!hasGeneratedImages) return;
+    setCurrentSyntheticIndex((prev) => (prev - 1 + generatedImages.length) % generatedImages.length);
   };
 
   return (
@@ -145,17 +173,39 @@ export default function Compare() {
               </span>
             </div>
 
-            {generatedImages.length > 0 ? (
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+            {hasGeneratedImages && currentSyntheticImage ? (
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4 relative group">
                 <img
                   src={
-                    generatedImages[0].startsWith('data:')
-                      ? generatedImages[0]
-                      : `http://localhost:5000${generatedImages[0]}`
+                    currentSyntheticImage.startsWith('data:')
+                      ? currentSyntheticImage
+                      : `http://localhost:5000${currentSyntheticImage}`
                   }
-                  alt={`Synthetic`}
+                  alt="Synthetic"
                   className="w-full h-full object-cover"
                 />
+
+                {generatedImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevSynthetic}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-md transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      aria-label="Previous synthetic image"
+                    >
+                      <ChevronLeft size={20} className="text-gray-800" />
+                    </button>
+                    <button
+                      onClick={handleNextSynthetic}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full hover:bg-white shadow-md transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      aria-label="Next synthetic image"
+                    >
+                      <ChevronRight size={20} className="text-gray-800" />
+                    </button>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                      {currentSyntheticIndex + 1} / {generatedImages.length}
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
