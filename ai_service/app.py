@@ -22,9 +22,10 @@ app.add_middleware(
 # ===== STARTUP MESSAGE =====
 @app.on_event("startup")
 async def startup_event():
+    # Use plain ASCII so Windows consoles without UTF-8 encoding don't crash
     print("\n" + "=" * 60)
-    print("🚀 FASTAPI SERVER IS LIVE AND RUNNING WITHOUT ISSUES! 🚀")
-    print("🧠 Ready to generate DermGen images.")
+    print("FASTAPI SERVER IS LIVE AND RUNNING WITHOUT ISSUES!")
+    print("Ready to generate DermGen images.")
     print("=" * 60 + "\n")
 
 

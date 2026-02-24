@@ -17,7 +17,6 @@ export default function Generate() {
   const { generatedImages, setGeneratedImages, setGeneratedClass } = useImageContext();
   const [error, setError] = useState('');
 
-  // ===== Updated handleGenerate pointing to FASTAPI backend =====
   const handleGenerate = async () => {
     if (count < 1 || count > 20) {
       setError('Please enter a number between 1 and 20');
@@ -29,15 +28,13 @@ export default function Generate() {
     setGeneratedImages([]);
 
     try {
-      const response = await axios.post('http://localhost:8000/generate', {  // FastApi backend
-        disease: selectedClass,  // matches backend key
+      const response = await axios.post('http://localhost:5000/api/generate', {
+        class: selectedClass,
         count: parseInt(count)
       });
 
-      // Prepend data URI so images render correctly
-      setGeneratedImages(
-        response.data.images.map(img => `data:image/png;base64,${img}`)
-      );
+      const images = response.data?.images || [];
+      setGeneratedImages(images);
       setGeneratedClass(selectedClass);
 
     } catch (err) {

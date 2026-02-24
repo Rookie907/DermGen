@@ -9,33 +9,53 @@ Get DermaGen up and running in 3 minutes!
 
 ## Quick Setup
 
-### 1. Start Backend (Terminal 1)
+### 1. Configure and start Backend (Terminal 1)
 
 ```bash
 cd backend
+
+# (first time only)
 npm install
-npm start
+
+# configure backend port and AI URL
+echo PORT=5000 > .env
+echo AI_SERVICE_URL=http://localhost:8000 >> .env
+
+# start with auto-reload
+npm run dev
 ```
 
-Wait for: `🚀 Server is running on http://localhost:5000`
+Wait for: `Server is running on http://localhost:5000`
 
-### 2. Start AI Service (Terminal 2)
+### 2. Configure and start AI Service (Terminal 2)
 
 ```bash
 cd ai_service
+
+# (first time only)
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+.\venv\Scripts\activate  # On macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
+
+# configure AI service port (optional, defaults shown)
+echo PORT=8000 > .env
+echo HOST=0.0.0.0 >> .env
+
+# start FastAPI via uvicorn using env-based port
 python main.py
 ```
 
-Wait for: `INFO: Application startup complete`
+Wait for logs ending with: `Application startup complete.`
 
 ### 3. Start Frontend (Terminal 3)
 
 ```bash
-cd ..  # Back to project root
+cd ..  # Back to project root (frontend)
+
+# (first time only)
 npm install
+
+# start Vite dev server
 npm run dev
 ```
 

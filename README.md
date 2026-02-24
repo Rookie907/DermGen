@@ -86,19 +86,17 @@ Navigate to the backend folder:
 cd backend
 ```
 
-Install dependencies:
+Install dependencies and configure environment:
 
 ```bash
 npm install
+
+# .env (backend/)
+PORT=5000
+AI_SERVICE_URL=http://localhost:8000
 ```
 
-Start the backend server:
-
-```bash
-npm start
-```
-
-Or for development with auto-restart:
+Start the backend server (with auto-restart in development):
 
 ```bash
 npm run dev
@@ -106,7 +104,8 @@ npm run dev
 
 You should see:
 ```
-🚀 Server is running on http://localhost:5000
+Server is running on http://localhost:5000
+🤖 AI Service URL: http://localhost:8000
 ```
 
 Keep this terminal running.
@@ -137,25 +136,23 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
-Install Python dependencies:
+Install Python dependencies and configure environment:
 
 ```bash
 pip install -r requirements.txt
+
+# .env (ai_service/)
+PORT=8000
+HOST=0.0.0.0
 ```
 
-Start the FastAPI service:
+Start the FastAPI service (uses PORT/HOST from .env):
 
 ```bash
 python main.py
 ```
 
-Or using uvicorn directly:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-You should see:
+You should see logs ending with:
 ```
 INFO:     Uvicorn running on http://0.0.0.0:8000
 INFO:     Application startup complete.
