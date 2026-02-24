@@ -17,7 +17,7 @@ export default function Generate() {
   const { generatedImages, setGeneratedImages, setGeneratedClass } = useImageContext();
   const [error, setError] = useState('');
 
-  // ===== Updated handleGenerate pointing to Flask backend =====
+  // ===== Updated handleGenerate pointing to FASTAPI backend =====
   const handleGenerate = async () => {
     if (count < 1 || count > 20) {
       setError('Please enter a number between 1 and 20');
@@ -29,7 +29,7 @@ export default function Generate() {
     setGeneratedImages([]);
 
     try {
-      const response = await axios.post('http://localhost:8001/generate', {  // Flask backend
+      const response = await axios.post('http://localhost:8000/generate', {  // FastApi backend
         disease: selectedClass,  // matches backend key
         count: parseInt(count)
       });
